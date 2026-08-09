@@ -198,6 +198,11 @@ export function enrichPost(post) {
   // Handle Mongoose documents by converting to JSON if necessary
   const postObj = typeof post.toJSON === "function" ? post.toJSON() : { ...post };
   
+  // Clean up legacy "/public/uploads/" path if it exists in the database
+  if (postObj.image && postObj.image.startsWith("/public/uploads/")) {
+    postObj.image = postObj.image.replace("/public/uploads/", "/uploads/");
+  }
+  
   const index = postObj.articleIndex !== undefined ? postObj.articleIndex : 0;
   const article = carArticles[index % carArticles.length];
   

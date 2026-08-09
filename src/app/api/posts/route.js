@@ -125,10 +125,15 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing image or prompt" }, { status: 400 });
     }
 
+    let cleanImage = image;
+    if (cleanImage && cleanImage.startsWith("/public/uploads/")) {
+      cleanImage = cleanImage.replace("/public/uploads/", "/uploads/");
+    }
+
     const count = await Post.countDocuments();
 
     const post = await Post.create({
-      image,
+      image: cleanImage,
       prompt,
       articleIndex: count,
       date: todayLabel(),
