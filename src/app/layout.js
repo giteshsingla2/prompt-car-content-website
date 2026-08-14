@@ -118,18 +118,14 @@ export default async function RootLayout({ children }) {
           `}
         </Script>
         {/* Ad Unfilled Tracker — sets collector URL before tracker script runs */}
-        {process.env.NEXT_PUBLIC_COLLECTOR_URL && (
-          <>
-            <Script
-              id="ad-tracker-config"
-              strategy="beforeInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `window.adTrackerConfig = { collectorUrl: "https://ads.punjigyan.com/api/collect" };`
-              }}
-            />
-            <Script src="/ad-tracker.js" strategy="afterInteractive" />
-          </>
-        )}
+        <Script
+          id="ad-tracker-config"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `window.adTrackerConfig = { collectorUrl: "https://ads.punjigyan.com/api/collect" };`
+          }}
+        />
+        <Script src="/ad-tracker.js" strategy="afterInteractive" />
         {/* Custom header code from DB (managed via admin panel Settings) */}
         <HeaderCode code={headerCode} />
       </head>
