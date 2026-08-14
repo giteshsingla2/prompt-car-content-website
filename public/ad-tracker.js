@@ -9,9 +9,12 @@
   var eventBuffer = [];
   var FLUSH_INTERVAL_MS = 8000; // safety flush for long page sessions
 
-  function pushEvent(adUnit, unfilled) {
+  // Exposed globally so the gpt-global-ad-setup script can call it synchronously
+  // from within the slotRenderEnded listener — before ad-tracker.js even loads,
+  // events are buffered via this reference being checked with window._adTrackerPush.
+  window._adTrackerPush = function (adUnit, unfilled) {
     eventBuffer.push({ adUnit: adUnit, unfilled: unfilled });
-  }
+  };
 
   function flush() {
     if (eventBuffer.length === 0) return;
@@ -25,7 +28,7 @@
     eventBuffer = [];
 
     // fetch with keepalive:true — survives page unload like sendBeacon, but also
-    // lets us set headers if ever needed again (kept for reliability/consistency).
+    // lets us set headers if ever needed (kept for reliability/consistency).
     if (window.fetch) {
       fetch(adTrackerConfig.collectorUrl, {
         method: 'POST',
@@ -44,35 +47,12 @@
     }
   }
 
-  function initTracking() {
-    if (typeof googletag === 'undefined' || !googletag.pubads) {
-      return;
-    }
-
-    googletag.cmd.push(function () {
-      googletag.pubads().addEventListener('slotRenderEnded', function (event) {
-        try {
-          var adUnit = event.slot.getAdUnitPath();
-          pushEvent(adUnit, event.isEmpty === true);
-        } catch (e) {
-          // fail silently — never let tracking errors break the page's ads
-        }
-      });
-    });
-  }
-
-  // Flush when the user leaves or backgrounds the tab — most reliable moment for sendBeacon
+  // Flush when the user leaves or backgrounds the tab
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') flush();
   });
   window.addEventListener('pagehide', flush);
 
-  // Safety net for long-lived pages (infinite scroll, SPA-like themes)
+  // Safety net for long-lived pages
   setInterval(flush, FLUSH_INTERVAL_MS);
-
-  if (document.readyState === 'complete') {
-    initTracking();
-  } else {
-    window.addEventListener('load', initTracking);
-  }
 })();

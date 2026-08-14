@@ -79,6 +79,13 @@ export default async function RootLayout({ children }) {
                     });
                     window.dispatchEvent(customEvent);
                   }
+
+                  // Ad-tracker: record every slot render so the tracker can flush fill/unfill data
+                  if (window._adTrackerPush) {
+                    try {
+                      window._adTrackerPush(event.slot.getAdUnitPath(), event.isEmpty === true);
+                    } catch(e) {}
+                  }
                 });
 
                 googletag.enableServices();
