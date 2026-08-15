@@ -22,7 +22,7 @@ export default function PostDetailPage({ params }) {
   const [unlocked, setUnlocked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState(null);
-  
+
   // Google Ad Manager state
   const [adStatus, setAdStatus] = useState("loading"); // loading, ready, visible, closed, unfilled
   const rewardedEventRef = useRef(null);
@@ -54,6 +54,17 @@ export default function PostDetailPage({ params }) {
       }
     }
   };
+
+  // Update document title to article title for SEO / browser tab
+  useEffect(() => {
+    if (post?.title) {
+      document.title = `${post.title}`;
+    }
+    return () => {
+      // Reset to default when leaving the page
+      document.title = "AutoPostr. — AI Car Concept Prompt Library";
+    };
+  }, [post?.title]);
 
   // Fetch post details and all posts for sidebar categories
   useEffect(() => {
@@ -294,10 +305,10 @@ export default function PostDetailPage({ params }) {
 
             {/* Render contentPart1 */}
             {post.contentPart1 ? (
-              <div 
-                className="pf-post-content" 
+              <div
+                className="pf-post-content"
                 style={{ marginBottom: "24px" }}
-                dangerouslySetInnerHTML={{ __html: post.contentPart1 }} 
+                dangerouslySetInnerHTML={{ __html: post.contentPart1 }}
               />
             ) : (
               <p className="pf-post-blurb">{post.blurb}</p>
@@ -350,7 +361,7 @@ export default function PostDetailPage({ params }) {
                       Ultra detailed, ready-to-paste prompt for this exact car concept — camera details, style
                       and lighting all spelled out.
                     </p>
-                    
+
                     {adStatus === "loading" ? (
                       <button className="pf-btn pf-btn-primary" disabled>
                         <Loader2 className="pf-spin" size={16} /> Loading ad sponsor…
@@ -372,16 +383,16 @@ export default function PostDetailPage({ params }) {
 
             {/* Render contentPart2 */}
             {post.contentPart2 ? (
-              <div 
-                className="pf-post-content" 
+              <div
+                className="pf-post-content"
                 style={{ marginTop: "24px" }}
-                dangerouslySetInnerHTML={{ __html: post.contentPart2 }} 
+                dangerouslySetInnerHTML={{ __html: post.contentPart2 }}
               />
             ) : (
               post.content && !post.contentPart1 && (
-                <div 
-                  className="pf-post-content" 
-                  dangerouslySetInnerHTML={{ __html: post.content }} 
+                <div
+                  className="pf-post-content"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
                 />
               )
             )}
